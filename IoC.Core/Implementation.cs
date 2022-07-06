@@ -4,6 +4,7 @@ public abstract class Implementation
 {
     protected readonly Type Type;
     protected readonly HashSet<Type> ConstructorParametersTypes = new();
+    
     protected Implementation(Type type)
     {
         Type = type;
