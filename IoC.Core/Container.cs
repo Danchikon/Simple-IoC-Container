@@ -2,8 +2,10 @@ namespace IoC.Core;
 
 public sealed class Container
 {
-    private readonly Dictionary<Type, ClassInfo> _services = new();
+    private readonly Dictionary<Type, Implementation> _implementations = new();
 
+    #region Register Singleton
+    
     public void RegisterSingleton<TAbstraction, TImplementation>() where TImplementation : class, TAbstraction
     {
         RegisterSingleton(typeof(TAbstraction), typeof(TImplementation));
@@ -16,15 +18,34 @@ public sealed class Container
     
     public void RegisterSingleton(Type abstraction, Type implementation) 
     {
-        var singleton = new SingletonClass(abstraction, implementation, this)!;
-        _services.TryAdd(abstraction, singleton);
+        var singleton = new Singleton(implementation, this)!;
+        _implementations.TryAdd(abstraction, singleton);
     }
     
-    // public void AddTransient<TService, TImplementation>() where TImplementation : TService
-    // {
-    //     _services.TryAdd(typeof(TService), typeof(TImplementation));
-    // }
+    #endregion
+
+    #region Register Transient
     
+    public void RegisterTransient<TAbstraction, TImplementation>() where TImplementation : class, TAbstraction
+    {
+        RegisterTransient(typeof(TAbstraction), typeof(TImplementation));
+    }
+    
+    public void RegisterTransient<TImplementation>() where TImplementation : class
+    {
+        RegisterTransient(typeof(TImplementation), typeof(TImplementation));
+    }
+    
+    public void RegisterTransient(Type abstraction, Type implementation) 
+    {
+        var singleton = new Transient(implementation, this)!;
+        _implementations.TryAdd(abstraction, singleton);
+    }
+    
+    #endregion
+
+    #region Resolve
+
     public TAbstraction? Resolve<TAbstraction>()
     {
         return (TAbstraction?)Resolve(typeof(TAbstraction));
@@ -32,7 +53,7 @@ public sealed class Container
     
     public object? Resolve(Type abstraction)
     {
-        var service = _services.GetValueOrDefault(abstraction);
+        var service = _implementations.GetValueOrDefault(abstraction);
         return service?.GetInstance();
     }
     
@@ -45,6 +66,8 @@ public sealed class Container
     {
         var instance = Resolve(abstraction);
 
-        return instance ?? throw new Exception("The class must be registered in the container");
+        return instance ?? throw new Exception("The type must be registered in the container");
     }
+
+    #endregion
 }

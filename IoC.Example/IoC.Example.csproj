@@ -8,4 +8,8 @@
         <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\IoC.Core\IoC.Core.csproj" />
+    </ItemGroup>
+
 </Project>
